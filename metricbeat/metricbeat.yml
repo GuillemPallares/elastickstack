@@ -1,8 +1,11 @@
 metricbeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
+  name: "ElasticStack"
+  tags: ["service-X", "web-tier"]
 
 processors:
+  - add_host_metadata: ~
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
 
@@ -59,6 +62,17 @@ metricbeat.modules:
 
   #index_recovery.active_only: true
   #scope: node
+  
+- module: logstash
+  metricsets:
+    - node
+    - node_stats
+  period: 10s
+  hosts: ["http://logstash:5000","http://logstash:5044"]
+  #username: "user"
+  #password: "secret"
+  xpack.enabled: true
+
 
 - module: kibana
   metricsets:
