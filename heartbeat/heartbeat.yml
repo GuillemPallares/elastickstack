@@ -1,0 +1,22 @@
+heartbeat.monitors:
+- type: http
+  schedule: '@every 10s'
+  urls:
+    - https://localhost:5001
+    - http://elasticsearch:9200
+    - http://kibana:5601/api/status
+    - http://apm-server:8200
+
+  check.request:
+    method: GET
+    headers:
+        'Content-Type': 'application/json' 
+  check.response:
+       status: 200
+       
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+setup.kibana:
+  host: "kibana:5601"

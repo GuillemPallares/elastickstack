@@ -1,0 +1,113 @@
+version: '3.4'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
+    ports:
+    - 9200:9200
+    volumes:
+    - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+    - cluster.name=identityserver
+    - xpack.monitoring.enabled=true
+    - xpack.watcher.enabled=false
+    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    - discovery.type=single-node
+    networks:
+    - elasticknet
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.12.1
+    ports:
+    - 5601:5601
+    depends_on:
+    - elasticsearch
+    environment:
+    - ELASTICSEARCH_URL=http://elasticsearch:9200
+    networks:
+    - elasticknet
+    healthcheck:
+      interval: 10s
+      retries: 20
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:5601/api/status
+
+
+  apm-server:
+    container_name: apm-server
+    image: docker.elastic.co/apm/apm-server:7.12.1
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
+    cap_drop: ["ALL"]
+    ports:
+    - 8200:8200
+    networks:
+    - elasticknet
+    command: >
+        apm-server -e
+          -E apm-server.rum.enabled=true
+          -E setup.kibana.host=kibana:5601
+          -E setup.template.settings.index.number_of_replicas=0
+          -E apm-server.kibana.enabled=true
+          -E apm-server.kibana.host=kibana:5601
+          -E output.elasticsearch.hosts=["elasticsearch:9200"]
+    healthcheck:
+      interval: 10s
+      retries: 12
+      test: curl --write-out 'HTTP %{http_code}' --fail --silent --output /dev/null http://localhost:8200/
+
+  metricbeat:
+    container_name: metricbeat
+    build: ./metricbeat
+    user: root
+    command: -system.hostfs=/hostfs
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      KIBANA_HOSTS: http://kibana:5601
+    volumes:
+      - metricbeat-data:/usr/share/metricbeat/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+    networks:
+      - elasticknet
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+
+  heartbeat:
+    container_name: heartbeat
+    build: ./heartbeat
+    volumes:
+      - metricbeat-data:/usr/share/heartbeat/data
+    environment:
+      - monitoring.kibana.collection.enabled=false
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+    networks:
+      - elasticknet
+    depends_on:
+      - elasticsearch
+    restart: always
+
+networks:
+  elasticknet:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+  heartbeat-data:
+    driver: local
+  metricbeat-data:
+    driver: local
