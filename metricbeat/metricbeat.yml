@@ -1,8 +1,6 @@
 metricbeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
-  name: "ElasticStack"
-  tags: ["service-X", "web-tier"]
 
 processors:
   - add_host_metadata: ~
@@ -11,10 +9,10 @@ processors:
 
 setup.dashboards.enabled: true
 
-setup.kibana.host: "http://kibana:5601"
+setup.kibana.host: "${HOST_KIBANA}"
 
 output.elasticsearch:
-  hosts: '${ELASTICSEARCH_HOSTS:elasticsearch:9200}'
+  hosts: ["${HOST_ELASTICSEARCH}"]
   # username: '${ELASTICSEARCH_USERNAME:}'
   # password: '${ELASTICSEARCH_PASSWORD:}'
 
@@ -68,7 +66,7 @@ metricbeat.modules:
     - node
     - node_stats
   period: 10s
-  hosts: ["http://logstash:5000","http://logstash:5044"]
+  hosts: ["http://logstash:9000","http://logstash:9044"]
   #username: "user"
   #password: "secret"
   xpack.enabled: true
