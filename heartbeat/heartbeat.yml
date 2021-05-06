@@ -2,6 +2,7 @@ metricbeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
 
+# version 7 alredy has uptime Dashboards integrated.
 # setup.dashboards.enabled: true
 # setup.dashboards.directory: /usr/share/heartbeat/kibana
 
@@ -11,6 +12,16 @@ processors:
   - add_docker_metadata: ~
 
 heartbeat.monitors:
+#Monitor all containers using an icmp ping
+- type: icmp
+  schedule: '*/5 * * * * * *'
+  hosts: ["filebeat","metricbeat","logstash","elasticsearch","kibana"]
+  ipv4: true
+  ipv6: true
+  mode: any
+  timeout: 16s
+  wait: 1s
+
 - type: http
   id: kibana-monitor
   name: Kibana
