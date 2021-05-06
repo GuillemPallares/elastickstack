@@ -135,8 +135,8 @@ services:
     volumes:
       - metricbeat-data:/usr/share/heartbeat/data
     environment:
-      - monitoring.kibana.collection.enabled=false
-      - output.elasticsearch.hosts=[${HOST_ELASTICSEARCH_DEV}]
+      - "HOST_ELASTICSEARCH=${HOST_ELASTICSEARCH_DEV}"
+      - "HOST_KIBANA=${HOST_KIBANA_DEV}"
     networks:
       - elasticknet
     depends_on:
