@@ -25,7 +25,7 @@ services:
     container_name: logstash
     image: docker.elastic.co/logstash/logstash:7.12.1
     volumes:
-      - logstash-data:/usr/share/metricbeat/data
+      - logstash-data:/usr/share/logstash/data
       - type: bind
         source: ./logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
@@ -44,6 +44,10 @@ services:
     networks:
       - elasticknet
     depends_on:
+      metricbeat:
+        condition: service_started
+      heartbeat:
+        condition: service_started
       elasticsearch:
         condition: service_healthy
 
@@ -122,16 +126,19 @@ services:
   heartbeat:
     container_name: heartbeat
     build: ./heartbeat
+    user: root
     volumes:
       - metricbeat-data:/usr/share/heartbeat/data
     environment:
-      - monitoring.kibana.collection.enabled=false
-      - output.elasticsearch.hosts=["elasticsearch:9200"]
+      - "HOST_ELASTICSEARCH=elasticsearch:9200"
+      - "HOST_KIBANA=kibana:5601"
     networks:
       - elasticknet
     depends_on:
-      - elasticsearch
-    restart: always
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
 
 networks:
   elasticknet:
