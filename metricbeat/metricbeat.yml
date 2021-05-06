@@ -18,39 +18,15 @@ output.elasticsearch:
 
 # enabled modules for monitoring (e.g. elasticsearch-xpack)
 metricbeat.modules:
-- module: system
-  metricsets: ["cpu", "load", "memory", "network", "process", "process_summary", "core", "diskio", "socket"]
-  processes: ['.*']
-  process.include_top_n:
-    by_cpu: 5
-    by_memory: 5
-  period: 10s
-  cpu.metrics:  ["percentages"]
-  core.metrics: ["percentages"]
-
-- module: system
-  period: 1m
-  metricsets:
-    - filesystem
-    - fsstat
-  processors:
-  - drop_event.when.regexp:
-      system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
-
-- module: system
-  period: 15m
-  metricsets:
-    - uptime
-
 - module: elasticsearch
   metricsets:
     - node
     - node_stats
-    #- index
-    #- index_recovery
-    #- index_summary
-    #- shard
-    #- ml_job
+    - index
+    - index_recovery
+    - index_summary
+    - shard
+    - ml_job
   period: 10s
   hosts: ["http://elasticsearch:9200"]
   xpack.enabled: true
