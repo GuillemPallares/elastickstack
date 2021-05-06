@@ -1,22 +1,60 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+# setup.dashboards.enabled: true
+# setup.dashboards.directory: /usr/share/heartbeat/kibana
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
 heartbeat.monitors:
 - type: http
+  id: kibana-monitor
+  name: Kibana
   schedule: '@every 10s'
   urls:
-    - https://localhost:5001
-    - http://elasticsearch:9200
     - http://kibana:5601/api/status
+
+  check.response:
+       status: 200
+
+- type: http
+  id: elastic-monitor
+  name: Elastic
+  schedule: '@every 10s'
+  urls:
+    - http://elasticsearch:9200
+
+
+  check.response:
+       status: 200
+  
+- type: http
+  id: apm-monitor
+  name: APM-Server
+  schedule: '@every 10s'
+  urls:
     - http://apm-server:8200
 
-  check.request:
-    method: GET
-    headers:
-        'Content-Type': 'application/json' 
+  check.response:
+       status: 200
+
+- type: http
+  id: logstash-monitor
+  name: Logstash
+  schedule: '@every 10s'
+  urls:
+    - http://logstash:9600
+
   check.response:
        status: 200
        
 
 output.elasticsearch:
-  hosts: ["elasticsearch:9200"]
+  hosts: ["${HOST_ELASTICSEARCH}"]
 
 setup.kibana:
-  host: "kibana:5601"
+  host: "${HOST_KIBANA}"
