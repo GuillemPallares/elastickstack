@@ -30,21 +30,11 @@ services:
 
   logstash:
     container_name: logstash
-    image: docker.elastic.co/logstash/logstash:${ELASTIC_VERSION}
+    build: ./logstash
     volumes:
       - logstash-data:/usr/share/logstash/data
-      - type: bind
-        source: ./logstash/config/logstash.yml
-        target: /usr/share/logstash/config/logstash.yml
-        read_only: true
-      - type: bind
-        source: ./logstash/pipeline
-        target: /usr/share/logstash/config/logstash.yml
-        read_only: true
     ports:
-      - "9044:9044"
-      - "9000:9000/tcp"
-      - "9000:9000/udp"
+      - "5044:5044"
       - "9600:9600"
     environment:
       LS_JAVA_OPTS: "-Xms${ES_JVM_HEAP_LS} -Xmx${ES_JVM_HEAP_LS}"
