@@ -9,8 +9,10 @@ services:
     volumes:
     - elasticsearch-data:/usr/share/elasticsearch/data
     environment:
-    - cluster.name=identityserver
-    - xpack.monitoring.enabled=true
+    - cluster.name=elasticsearch
+    - xpack.monitoring.collection.enabled=true
+    - xpack.security.enabled=false
+    - xpack.monitoring.elasticsearch.collection.enabled=false
     - xpack.watcher.enabled=false
     - "ES_JAVA_OPTS=-Xms${ES_JVM_HEAP_EL} -Xmx${ES_JVM_HEAP_EL}"
     - discovery.type=single-node
@@ -49,10 +51,6 @@ services:
     networks:
       - elasticknet
     depends_on:
-      metricbeat:
-        condition: service_started
-      heartbeat:
-        condition: service_started
       elasticsearch:
         condition: service_healthy
 
@@ -89,18 +87,18 @@ services:
         condition: service_healthy
     cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
     cap_drop: ["ALL"]
+    volumes:
+      - type: bind
+        source: ./apm-server/apm-server.yml
+        target: /usr/share/apm-server/apm-server.yml
+        read_only: true
+    environment:
+      - "ELASTICSEARCH_URL=${HOST_ELASTICSEARCH_DEV}"
+      - "HOST_KIBANA=${HOST_KIBANA_DEV}"
     ports:
     - 8200:8200
     networks:
     - elasticknet
-    command: >
-        apm-server -e
-          -E apm-server.rum.enabled=true
-          -E setup.kibana.host=${HOST_KIBANA_DEV}"
-          -E setup.template.settings.index.number_of_replicas=0
-          -E apm-server.kibana.enabled=true
-          -E apm-server.kibana.host=${HOST_KIBANA_DEV}"
-          -E output.elasticsearch.hosts=[${HOST_ELASTICSEARCH_DEV}]
     healthcheck:
       interval: 10s
       retries: 12
