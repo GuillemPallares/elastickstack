@@ -28,7 +28,7 @@ metricbeat.modules:
     - shard
     - ml_job
   period: 10s
-  hosts: ["http://elasticsearch:9200"]
+  hosts: ["elasticsearch:9200"]
   xpack.enabled: true
   #username: "elastic"
   #password: "changeme"
@@ -42,7 +42,7 @@ metricbeat.modules:
     - node
     - node_stats
   period: 10s
-  hosts: ["http://logstash:9000","http://logstash:9044"]
+  hosts: ["logstash:9600"]
   #username: "user"
   #password: "secret"
   xpack.enabled: true
@@ -52,7 +52,7 @@ metricbeat.modules:
   metricsets:
     - stats
   period: 10s
-  hosts: ["http://kibana:5601"]
+  hosts: ["kibana:5601"]
   #basepath: ""
   #username: "user"
   #password: "secret"
