@@ -14,8 +14,10 @@ processors:
 heartbeat.monitors:
 #Monitor all containers using an icmp ping
 - type: icmp
+  id: docker-services
+  name: docker services
   schedule: '*/5 * * * * * *'
-  hosts: ["filebeat","metricbeat","logstash","elasticsearch","kibana"]
+  hosts: ["metricbeat","logstash","elasticsearch","kibana"]
   ipv4: true
   ipv6: true
   mode: any
