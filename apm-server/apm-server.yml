@@ -1,7 +1,7 @@
-
-apm-server.kibana.enabled: true
-apm-server.kibana.host: http://kibana:5601
-apm-server.rum.enabled: true
+apm-server:
+  # Defines the host and port the server is listening on. Use "unix:/path/to.sock" to listen on a unix domain socket.
+  host: "localhost:8200"
+  rum.enabled: true
 
 http.enabled: true
 http.port: 5067
