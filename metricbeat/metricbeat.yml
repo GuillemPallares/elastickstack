@@ -58,6 +58,16 @@ metricbeat.modules:
   #password: "secret"
   xpack.enabled: true
 
+- module: beat
+  metricsets:
+    - stats
+    - state
+  period: 10s
+  hosts: ["http://apm-server:5066"]
+  #username: "user"
+  #password: "secret"
+  xpack.enabled: true
+
   
 - module: docker
   metricsets:
