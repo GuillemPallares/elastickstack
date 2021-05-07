@@ -39,7 +39,7 @@ services:
         read_only: true
       - type: bind
         source: ./logstash/pipeline
-        target: /usr/share/logstash/pipeline
+        target: /usr/share/logstash/config/logstash.yml
         read_only: true
     ports:
       - "9044:9044"
@@ -79,22 +79,19 @@ services:
 
   apm-server:
     container_name: apm-server
-    image: docker.elastic.co/apm/apm-server:${ELASTIC_VERSION}
+    build: ./apm-server
     depends_on:
       elasticsearch:
         condition: service_healthy
       kibana:
         condition: service_healthy
-    command: >
-       apm-server -e
-         -E apm-server.rum.enabled=true
-         -E setup.kibana.host=kibana:5601
-         -E setup.template.settings.index.number_of_replicas=0
-         -E apm-server.kibana.enabled=true
-         -E apm-server.kibana.host=kibana:5601
-         -E output.elasticsearch.hosts=["elasticsearch:9200"]
     cap_add: ["CHOWN", "DAC_OVERRIDE", "SETGID", "SETUID"]
     cap_drop: ["ALL"]
+    volumes:
+    - type: bind
+      source: ./apm-server/config/apm-server.yml
+      target: /usr/share/apm-server/config/apm-server.yml
+      read_only: true
     environment:
       - "ELASTICSEARCH_URL=${HOST_ELASTICSEARCH_DEV}"
       - "HOST_KIBANA=${HOST_KIBANA_DEV}"
