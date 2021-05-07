@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/GuillemPallares/elasticstack/compare/v0.0.1...v0.0.2) (2021-05-07)
+
+
+### Features
+
+* **APM:** Added complete yml. ([727bc9d](https://github.com/GuillemPallares/elasticstack/commit/727bc9d741df5ebce20bb81290a96d9b00e47f3c))
+* **APM-server:** Added APM yml. ([c153a72](https://github.com/GuillemPallares/elasticstack/commit/c153a724830a94fd2cccbf71387fa515862a7317))
+
+
+### Bug Fixes
+
+* Changed logstash ports. ([c39265c](https://github.com/GuillemPallares/elasticstack/commit/c39265c4a73c2a656ab8e2fb283a64ab201103e2))
+* temp. Fix for APM-Server to work. ([6ac4003](https://github.com/GuillemPallares/elasticstack/commit/6ac40035f9607b2ba7dc580da9e5afc55687a11d))
+
 ### 0.0.1 (2021-05-07)
 
 
